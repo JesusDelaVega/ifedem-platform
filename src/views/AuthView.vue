@@ -1,37 +1,58 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-100 p-4 md:p-8">
+  <div class="min-h-screen flex items-center justify-center bg-gray-50 p-4 md:p-8">
     <div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-0 bg-white rounded-2xl overflow-hidden shadow-2xl min-h-[600px]">
       <!-- Left Side - Info -->
-      <div class="bg-gradient-to-br from-primary-500 to-secondary-500 p-8 lg:p-12 flex flex-col text-white relative">
+      <div class="relative bg-gradient-to-br from-gray-900 via-gray-800 to-primary-900 p-8 lg:p-12 flex flex-col text-white overflow-hidden">
+        <!-- Decorative background -->
+        <div class="absolute inset-0 opacity-10">
+          <div class="absolute top-0 left-0 w-64 h-64 bg-primary-500 rounded-full filter blur-3xl"></div>
+          <div class="absolute bottom-0 right-0 w-64 h-64 bg-primary-600 rounded-full filter blur-3xl"></div>
+        </div>
+
         <button
-          class="bg-white/20 text-white px-4 py-2 rounded-lg cursor-pointer text-sm self-start mb-8 hover:bg-white/30 transition-colors"
+          class="relative z-10 bg-white/10 backdrop-blur-sm border border-white/20 text-white px-4 py-2 rounded-lg cursor-pointer text-sm self-start mb-8 hover:bg-white/20 transition-all"
           @click="$router.push('/')"
         >
-          ← Volver al Inicio
+          <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+          Volver al Inicio
         </button>
 
-        <div class="flex-1 flex flex-col justify-center items-center text-center">
-          <PlatformLogo size="large" />
-          <h1 class="text-4xl lg:text-5xl font-bold mt-6 mb-2">{{ platformName }}</h1>
-          <p class="text-lg lg:text-xl mb-12 opacity-95">{{ tagline }}</p>
+        <div class="relative z-10 flex-1 flex flex-col justify-center items-center text-center">
+          <div class="relative mb-8">
+            <div class="absolute inset-0 bg-primary-500 rounded-2xl blur-xl opacity-50 animate-pulse"></div>
+            <div class="relative">
+              <PlatformLogo size="large" />
+            </div>
+          </div>
 
-          <div class="flex flex-col gap-6 w-full max-w-sm">
-            <div class="flex items-center gap-4 text-left">
-              <span class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0 font-bold">
-                ✓
-              </span>
+          <h1 class="text-4xl lg:text-5xl font-extrabold mb-3">{{ platformName }}</h1>
+          <p class="text-lg lg:text-xl mb-12 text-gray-300">{{ tagline }}</p>
+
+          <div class="flex flex-col gap-5 w-full max-w-sm">
+            <div class="flex items-start gap-4 text-left p-4 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10">
+              <div class="flex-shrink-0 w-6 h-6 bg-primary-500 rounded-full flex items-center justify-center mt-0.5">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+              </div>
               <span class="text-base lg:text-lg">{{ feature1 }}</span>
             </div>
-            <div class="flex items-center gap-4 text-left">
-              <span class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0 font-bold">
-                ✓
-              </span>
+            <div class="flex items-start gap-4 text-left p-4 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10">
+              <div class="flex-shrink-0 w-6 h-6 bg-primary-500 rounded-full flex items-center justify-center mt-0.5">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+              </div>
               <span class="text-base lg:text-lg">{{ feature2 }}</span>
             </div>
-            <div class="flex items-center gap-4 text-left">
-              <span class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0 font-bold">
-                ✓
-              </span>
+            <div class="flex items-start gap-4 text-left p-4 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10">
+              <div class="flex-shrink-0 w-6 h-6 bg-primary-500 rounded-full flex items-center justify-center mt-0.5">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+              </div>
               <span class="text-base lg:text-lg">{{ feature3 }}</span>
             </div>
           </div>
