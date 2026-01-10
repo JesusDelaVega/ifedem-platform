@@ -116,11 +116,11 @@
         </div>
         <div class="info-item">
           <label>Modo:</label>
-          <span>{{ import.meta.env.VITE_PLATFORM_MODE }}</span>
+          <span>{{ platformMode }}</span>
         </div>
         <div class="info-item">
           <label>Firebase Project:</label>
-          <span>{{ import.meta.env.VITE_FIREBASE_PROJECT_ID }}</span>
+          <span>{{ firebaseProjectId }}</span>
         </div>
         <div class="info-item">
           <label>Usuario Admin:</label>
@@ -152,10 +152,14 @@ const stats = ref({
   totalRevenue: 0
 })
 
+const platformMode = computed(() => import.meta.env.VITE_PLATFORM_MODE)
+
 const platformName = computed(() => {
   const mode = import.meta.env.VITE_PLATFORM_MODE
   return mode === 'iacelera' ? 'iAcelera' : 'IFEDEM'
 })
+
+const firebaseProjectId = computed(() => import.meta.env.VITE_FIREBASE_PROJECT_ID)
 
 async function loadStats() {
   try {
