@@ -1,18 +1,26 @@
 <template>
   <div class="product-list">
-    <div v-if="loading" class="loading-state">
-      <p>Cargando productos...</p>
+    <!-- Loading State -->
+    <div v-if="loading" class="text-center py-16">
+      <div class="inline-block animate-spin rounded-full h-16 w-16 border-4 border-primary-500 border-t-transparent mb-4"></div>
+      <p class="text-white text-lg">Cargando productos...</p>
     </div>
 
-    <div v-else-if="error" class="error-state">
-      <p>Error: {{ error }}</p>
+    <!-- Error State -->
+    <div v-else-if="error" class="text-center py-16">
+      <div class="text-6xl mb-4">⚠️</div>
+      <p class="text-red-400 text-lg font-semibold">Error: {{ error }}</p>
     </div>
 
-    <div v-else-if="displayProducts.length === 0" class="empty-state">
-      <p>No hay productos disponibles</p>
+    <!-- Empty State -->
+    <div v-else-if="displayProducts.length === 0" class="text-center py-16">
+      <div class="text-6xl mb-4">📦</div>
+      <h3 class="text-2xl font-bold text-white mb-2">No hay productos disponibles</h3>
+      <p class="text-gray-400">Vuelve más tarde para ver nuevos productos</p>
     </div>
 
-    <div v-else class="products-grid">
+    <!-- Products Grid -->
+    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       <ProductCard
         v-for="product in displayProducts"
         :key="product.id"
@@ -70,33 +78,3 @@ function handleAddedToCart(product: Product) {
   emit('added-to-cart', product)
 }
 </script>
-
-<style scoped>
-.product-list {
-  width: 100%;
-}
-
-.products-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
-}
-
-.loading-state,
-.error-state,
-.empty-state {
-  text-align: center;
-  padding: 3rem;
-  color: #666;
-}
-
-.error-state {
-  color: #c00;
-}
-
-@media (max-width: 768px) {
-  .products-grid {
-    grid-template-columns: 1fr;
-  }
-}
-</style>

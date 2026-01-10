@@ -1,46 +1,78 @@
 <template>
-  <div class="product-card">
-    <div class="product-image">
-      <img :src="product.thumbnail || product.images[0] || '/placeholder-product.jpg'" :alt="product.name" />
-      <div v-if="product.status !== 'active'" class="status-badge">
+  <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:scale-105 hover:border-primary-500 transition-all duration-300 group">
+    <!-- Product Image -->
+    <div class="relative h-56 bg-gradient-to-br from-gray-800 to-gray-900 overflow-hidden">
+      <img
+        :src="product.thumbnail || product.images[0] || '/placeholder-product.jpg'"
+        :alt="product.name"
+        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+      />
+
+      <!-- Status Badge -->
+      <div v-if="product.status !== 'active'" class="absolute top-3 right-3 px-3 py-1 bg-red-500/90 backdrop-blur-sm text-white text-xs font-semibold rounded-full">
         {{ statusLabel }}
       </div>
     </div>
 
-    <div class="product-info">
-      <h3 class="product-name">{{ product.name }}</h3>
-      <p v-if="product.shortDescription" class="product-description">
+    <!-- Product Info -->
+    <div class="p-6">
+      <!-- Product Name -->
+      <h3 class="text-xl font-bold text-white mb-2 line-clamp-2 min-h-[3.5rem]">
+        {{ product.name }}
+      </h3>
+
+      <!-- Product Description -->
+      <p v-if="product.shortDescription" class="text-gray-400 text-sm mb-4 line-clamp-2 min-h-[2.5rem]">
         {{ product.shortDescription }}
       </p>
 
-      <div class="product-meta">
-        <span class="product-type">{{ typeLabel }}</span>
-        <span v-if="product.bv" class="product-bv">{{ product.bv }} BV</span>
+      <!-- Product Meta -->
+      <div class="flex gap-2 mb-4">
+        <span class="px-3 py-1 bg-primary-500/20 text-primary-400 text-xs font-semibold rounded-full border border-primary-500/30">
+          {{ typeLabel }}
+        </span>
+        <span v-if="product.bv" class="px-3 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-semibold rounded-full border border-yellow-500/30">
+          {{ product.bv }} BV
+        </span>
       </div>
 
-      <div class="product-pricing">
-        <span class="product-price">${{ product.price.toFixed(2) }}</span>
-        <span v-if="product.compareAtPrice" class="product-compare-price">
+      <!-- Product Pricing -->
+      <div class="flex items-baseline gap-2 mb-6">
+        <span class="text-3xl font-bold text-primary-400">
+          ${{ product.price.toFixed(2) }}
+        </span>
+        <span v-if="product.compareAtPrice" class="text-lg text-gray-500 line-through">
           ${{ product.compareAtPrice.toFixed(2) }}
         </span>
       </div>
 
-      <div class="product-actions">
+      <!-- Product Actions -->
+      <div class="flex flex-col gap-2">
         <button
           v-if="showAddToCart && product.status === 'active'"
-          class="btn-add-cart"
+          class="w-full bg-gradient-to-r from-primary-500 to-primary-600 text-white px-4 py-3 rounded-xl font-semibold hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           @click="handleAddToCart"
           :disabled="!canPurchase"
         >
-          <span>🛒</span>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
           Agregar al Carrito
         </button>
 
-        <button v-if="showDetails" class="btn-details" @click="$emit('view-details', product)">
+        <button
+          v-if="showDetails"
+          class="w-full bg-white/5 backdrop-blur-sm border border-white/20 text-white px-4 py-3 rounded-xl font-semibold hover:bg-white/10 transition-all"
+          @click="$emit('view-details', product)"
+        >
           Ver Detalles
         </button>
 
-        <button v-if="showEdit" class="btn-edit" @click="$emit('edit', product)">
+        <button
+          v-if="showEdit"
+          class="w-full bg-white/5 backdrop-blur-sm border border-white/20 text-white px-4 py-3 rounded-xl font-semibold hover:bg-white/10 transition-all"
+          @click="$emit('edit', product)"
+        >
           Editar
         </button>
       </div>
@@ -112,159 +144,3 @@ function handleAddToCart() {
   emit('added-to-cart', props.product)
 }
 </script>
-
-<style scoped>
-.product-card {
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.product-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.product-image {
-  position: relative;
-  width: 100%;
-  height: 200px;
-  overflow: hidden;
-  background: #f5f5f5;
-}
-
-.product-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.status-badge {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: rgba(0, 0, 0, 0.7);
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.product-info {
-  padding: 1rem;
-}
-
-.product-name {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #333;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.product-description {
-  margin: 0 0 0.75rem 0;
-  color: #666;
-  font-size: 0.9rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.product-meta {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-}
-
-.product-type,
-.product-bv {
-  font-size: 0.75rem;
-  padding: 4px 8px;
-  border-radius: 4px;
-  background: #f0f0f0;
-  color: #666;
-}
-
-.product-pricing {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.product-price {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #0066cc;
-}
-
-.product-compare-price {
-  font-size: 1rem;
-  color: #999;
-  text-decoration: line-through;
-}
-
-.product-actions {
-  display: flex;
-  gap: 0.5rem;
-  flex-direction: column;
-}
-
-.btn-add-cart,
-.btn-details,
-.btn-edit {
-  padding: 0.75rem;
-  border: none;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.btn-add-cart {
-  background: #0066cc;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.btn-add-cart:hover:not(:disabled) {
-  background: #0052a3;
-}
-
-.btn-add-cart:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-
-.btn-details {
-  background: #f0f0f0;
-  color: #333;
-}
-
-.btn-details:hover {
-  background: #e0e0e0;
-}
-
-.btn-edit {
-  background: #f0f0f0;
-  color: #333;
-}
-
-.btn-edit:hover {
-  background: #e0e0e0;
-}
-</style>
