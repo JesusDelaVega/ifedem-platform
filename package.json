@@ -1,5 +1,5 @@
 {
-  "name": "ifedem-platform",
+  "name": "mlm-platform",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -8,7 +8,8 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "run-p type-check \"build-only {@}\" --",
+    "build": "vite build",
+    "build:check": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "test:unit": "vitest",
     "build-only": "vite build",
@@ -16,10 +17,14 @@
     "lint": "eslint . --fix --cache"
   },
   "dependencies": {
+    "@cloudinary/react": "^1.14.3",
+    "@cloudinary/url-gen": "^1.22.0",
+    "@stripe/stripe-js": "^8.6.1",
     "axios": "^1.13.2",
     "cloudinary": "^2.8.0",
     "firebase": "^12.7.0",
     "pinia": "^3.0.4",
+    "stripe": "^20.1.2",
     "vue": "^3.5.26",
     "vue-router": "^4.6.4",
     "vuefire": "^3.2.2"
