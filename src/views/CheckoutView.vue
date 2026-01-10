@@ -1,215 +1,287 @@
 <template>
-  <div class="checkout-view">
-    <div class="checkout-container">
-      <div class="checkout-header">
-        <button class="back-btn" @click="router.back()">← Volver</button>
-        <h1>Checkout</h1>
-      </div>
+  <div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-primary-900">
+    <!-- Decorative background -->
+    <div class="absolute inset-0 opacity-10 pointer-events-none">
+      <div class="absolute top-0 right-0 w-96 h-96 bg-primary-500 rounded-full filter blur-3xl"></div>
+      <div class="absolute bottom-0 left-0 w-96 h-96 bg-primary-600 rounded-full filter blur-3xl"></div>
+    </div>
 
-      <div v-if="isEmpty" class="empty-cart">
-        <p>Tu carrito está vacío</p>
-        <button class="btn-primary" @click="router.push('/products')">
-          Ver Productos
-        </button>
-      </div>
-
-      <div v-else class="checkout-content">
-        <!-- Order Summary -->
-        <div class="checkout-section">
-          <h2>Resumen del Pedido</h2>
-          <div class="order-items">
-            <div v-for="item in cartItems" :key="item.product.id" class="order-item">
-              <div class="item-image">
-                <img
-                  :src="
-                    item.product.thumbnail || item.product.images[0] || '/placeholder-product.jpg'
-                  "
-                  :alt="item.product.name"
-                />
-              </div>
-              <div class="item-info">
-                <h4>{{ item.product.name }}</h4>
-                <p>Cantidad: {{ item.quantity }}</p>
-              </div>
-              <div class="item-price">
-                ${{ (item.product.price * item.quantity).toFixed(2) }}
-              </div>
-            </div>
-          </div>
-
-          <div class="order-totals">
-            <div class="total-row">
-              <span>Subtotal</span>
-              <span>${{ subtotal.toFixed(2) }}</span>
-            </div>
-            <div class="total-row">
-              <span>IVA (16%)</span>
-              <span>${{ tax.toFixed(2) }}</span>
-            </div>
-            <div class="total-row">
-              <span>Envío</span>
-              <span>Gratis</span>
-            </div>
-            <div class="total-row bv">
-              <span>Total BV</span>
-              <span>{{ totalBV }} BV</span>
-            </div>
-            <div class="total-row total">
-              <span>Total</span>
-              <span>${{ total.toFixed(2) }}</span>
-            </div>
+    <div class="relative z-10">
+      <!-- Header -->
+      <header class="bg-white/5 backdrop-blur-sm border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div class="flex items-center gap-4">
+            <button
+              class="text-primary-400 hover:text-primary-300 flex items-center gap-2 transition-colors"
+              @click="router.back()"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+              </svg>
+              <span class="font-semibold">Volver</span>
+            </button>
+            <h1 class="text-2xl sm:text-3xl font-bold text-white">Checkout</h1>
           </div>
         </div>
+      </header>
 
-        <!-- Shipping Address -->
-        <div class="checkout-section">
-          <h2>Dirección de Envío</h2>
-          <form class="address-form">
-            <div class="form-row">
-              <div class="form-group">
-                <label for="firstName">Nombre</label>
-                <input
-                  id="firstName"
-                  v-model="shippingAddress.firstName"
-                  type="text"
-                  required
-                />
-              </div>
-              <div class="form-group">
-                <label for="lastName">Apellido</label>
-                <input
-                  id="lastName"
-                  v-model="shippingAddress.lastName"
-                  type="text"
-                  required
-                />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="address1">Dirección</label>
-              <input
-                id="address1"
-                v-model="shippingAddress.address1"
-                type="text"
-                required
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="address2">Dirección 2 (Opcional)</label>
-              <input id="address2" v-model="shippingAddress.address2" type="text" />
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="city">Ciudad</label>
-                <input
-                  id="city"
-                  v-model="shippingAddress.city"
-                  type="text"
-                  required
-                />
-              </div>
-              <div class="form-group">
-                <label for="state">Estado</label>
-                <input
-                  id="state"
-                  v-model="shippingAddress.state"
-                  type="text"
-                  required
-                />
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="postalCode">Código Postal</label>
-                <input
-                  id="postalCode"
-                  v-model="shippingAddress.postalCode"
-                  type="text"
-                  required
-                />
-              </div>
-              <div class="form-group">
-                <label for="country">País</label>
-                <input
-                  id="country"
-                  v-model="shippingAddress.country"
-                  type="text"
-                  required
-                />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="phone">Teléfono</label>
-              <input
-                id="phone"
-                v-model="shippingAddress.phone"
-                type="tel"
-              />
-            </div>
-          </form>
-        </div>
-
-        <!-- Payment Method -->
-        <div class="checkout-section">
-          <h2>Método de Pago</h2>
-          <div class="payment-methods">
-            <label class="payment-option">
-              <input
-                type="radio"
-                name="payment"
-                value="transfer"
-                v-model="paymentMethod"
-              />
-              <span>Transferencia Bancaria</span>
-            </label>
-            <label class="payment-option">
-              <input
-                type="radio"
-                name="payment"
-                value="cash"
-                v-model="paymentMethod"
-              />
-              <span>Efectivo</span>
-            </label>
-            <label class="payment-option disabled">
-              <input
-                type="radio"
-                name="payment"
-                value="stripe"
-                disabled
-              />
-              <span>Tarjeta de Crédito/Débito (Próximamente)</span>
-            </label>
-          </div>
-
-          <div v-if="paymentMethod === 'transfer'" class="payment-info">
-            <p><strong>Información de transferencia:</strong></p>
-            <p>Banco: BBVA</p>
-            <p>Cuenta: 1234567890</p>
-            <p>CLABE: 012345678901234567</p>
-            <p>Referencia: Tu código de afiliado</p>
-            <small>Una vez realizada la transferencia, envía tu comprobante al administrador.</small>
-          </div>
-        </div>
-
-        <!-- Place Order Button -->
-        <div class="checkout-actions">
+      <!-- Empty Cart State -->
+      <div v-if="isEmpty" class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-12 text-center">
+          <div class="text-6xl mb-4">🛒</div>
+          <h2 class="text-2xl font-bold text-white mb-4">Tu carrito está vacío</h2>
+          <p class="text-gray-400 mb-8">Agrega productos para continuar con tu compra</p>
           <button
-            class="btn-place-order"
-            @click="handlePlaceOrder"
-            :disabled="!canPlaceOrder || ordersService.loading.value"
+            class="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transition-all"
+            @click="router.push('/products')"
           >
-            {{ ordersService.loading.value ? 'Procesando...' : 'Realizar Pedido' }}
+            Ver Productos
           </button>
         </div>
+      </div>
 
-        <div v-if="ordersService.error.value" class="error-message">
-          {{ ordersService.error.value }}
+      <!-- Checkout Content -->
+      <div v-else class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <!-- Left Column - Forms -->
+          <div class="lg:col-span-2 space-y-6">
+            <!-- Shipping Address -->
+            <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 lg:p-8">
+              <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <div class="w-10 h-10 bg-primary-500 rounded-xl flex items-center justify-center">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+                </div>
+                Dirección de Envío
+              </h2>
+
+              <div class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label for="firstName" class="block text-gray-400 text-sm font-semibold mb-2 uppercase tracking-wider">Nombre</label>
+                    <input
+                      id="firstName"
+                      v-model="shippingAddress.firstName"
+                      type="text"
+                      required
+                      class="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label for="lastName" class="block text-gray-400 text-sm font-semibold mb-2 uppercase tracking-wider">Apellido</label>
+                    <input
+                      id="lastName"
+                      v-model="shippingAddress.lastName"
+                      type="text"
+                      required
+                      class="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-colors"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label for="address1" class="block text-gray-400 text-sm font-semibold mb-2 uppercase tracking-wider">Dirección</label>
+                  <input
+                    id="address1"
+                    v-model="shippingAddress.address1"
+                    type="text"
+                    required
+                    class="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label for="address2" class="block text-gray-400 text-sm font-semibold mb-2 uppercase tracking-wider">Dirección 2 (Opcional)</label>
+                  <input
+                    id="address2"
+                    v-model="shippingAddress.address2"
+                    type="text"
+                    class="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-colors"
+                  />
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label for="city" class="block text-gray-400 text-sm font-semibold mb-2 uppercase tracking-wider">Ciudad</label>
+                    <input
+                      id="city"
+                      v-model="shippingAddress.city"
+                      type="text"
+                      required
+                      class="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label for="state" class="block text-gray-400 text-sm font-semibold mb-2 uppercase tracking-wider">Estado</label>
+                    <input
+                      id="state"
+                      v-model="shippingAddress.state"
+                      type="text"
+                      required
+                      class="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-colors"
+                    />
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label for="postalCode" class="block text-gray-400 text-sm font-semibold mb-2 uppercase tracking-wider">Código Postal</label>
+                    <input
+                      id="postalCode"
+                      v-model="shippingAddress.postalCode"
+                      type="text"
+                      required
+                      class="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label for="country" class="block text-gray-400 text-sm font-semibold mb-2 uppercase tracking-wider">País</label>
+                    <input
+                      id="country"
+                      v-model="shippingAddress.country"
+                      type="text"
+                      required
+                      class="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-colors"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label for="phone" class="block text-gray-400 text-sm font-semibold mb-2 uppercase tracking-wider">Teléfono</label>
+                  <input
+                    id="phone"
+                    v-model="shippingAddress.phone"
+                    type="tel"
+                    class="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-colors"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 lg:p-8">
+              <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                  </svg>
+                </div>
+                Método de Pago
+              </h2>
+
+              <div class="space-y-3">
+                <label class="flex items-center gap-3 p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl cursor-pointer hover:bg-white/15 transition-all" :class="{ 'border-primary-500 bg-primary-500/20': paymentMethod === 'transfer' }">
+                  <input
+                    type="radio"
+                    name="payment"
+                    value="transfer"
+                    v-model="paymentMethod"
+                    class="w-5 h-5 text-primary-500 focus:ring-primary-500"
+                  />
+                  <span class="text-white font-semibold flex-1">Transferencia Bancaria</span>
+                </label>
+
+                <label class="flex items-center gap-3 p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl cursor-pointer hover:bg-white/15 transition-all" :class="{ 'border-primary-500 bg-primary-500/20': paymentMethod === 'cash' }">
+                  <input
+                    type="radio"
+                    name="payment"
+                    value="cash"
+                    v-model="paymentMethod"
+                    class="w-5 h-5 text-primary-500 focus:ring-primary-500"
+                  />
+                  <span class="text-white font-semibold flex-1">Efectivo</span>
+                </label>
+
+                <label class="flex items-center gap-3 p-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl opacity-50 cursor-not-allowed">
+                  <input
+                    type="radio"
+                    name="payment"
+                    value="stripe"
+                    disabled
+                    class="w-5 h-5"
+                  />
+                  <span class="text-gray-400 font-semibold flex-1">Tarjeta de Crédito/Débito (Próximamente)</span>
+                </label>
+              </div>
+
+              <div v-if="paymentMethod === 'transfer'" class="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
+                <p class="text-yellow-400 font-semibold mb-2">Información de transferencia:</p>
+                <div class="space-y-1 text-gray-300 text-sm">
+                  <p><span class="font-semibold">Banco:</span> BBVA</p>
+                  <p><span class="font-semibold">Cuenta:</span> 1234567890</p>
+                  <p><span class="font-semibold">CLABE:</span> 012345678901234567</p>
+                  <p><span class="font-semibold">Referencia:</span> Tu código de afiliado</p>
+                  <p class="text-xs text-yellow-400 mt-3">Una vez realizada la transferencia, envía tu comprobante al administrador.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column - Order Summary -->
+          <div class="lg:col-span-1">
+            <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 lg:p-8 sticky top-8">
+              <h2 class="text-2xl font-bold text-white mb-6">Resumen del Pedido</h2>
+
+              <!-- Order Items -->
+              <div class="space-y-3 mb-6 max-h-96 overflow-y-auto">
+                <div v-for="item in cartItems" :key="item.product.id" class="flex gap-3 p-3 bg-white/5 rounded-xl">
+                  <div class="w-16 h-16 flex-shrink-0 bg-white/10 rounded-lg overflow-hidden">
+                    <img
+                      :src="item.product.thumbnail || item.product.images[0] || '/placeholder-product.jpg'"
+                      :alt="item.product.name"
+                      class="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <h4 class="text-white font-semibold text-sm mb-1 truncate">{{ item.product.name }}</h4>
+                    <p class="text-gray-400 text-xs">Cantidad: {{ item.quantity }}</p>
+                  </div>
+                  <div class="text-primary-400 font-bold text-sm">
+                    ${{ (item.product.price * item.quantity).toFixed(2) }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Totals -->
+              <div class="space-y-3 pt-4 border-t border-white/10">
+                <div class="flex justify-between text-gray-400">
+                  <span>Subtotal</span>
+                  <span class="text-white font-semibold">${{ subtotal.toFixed(2) }}</span>
+                </div>
+                <div class="flex justify-between text-gray-400">
+                  <span>IVA (16%)</span>
+                  <span class="text-white font-semibold">${{ tax.toFixed(2) }}</span>
+                </div>
+                <div class="flex justify-between text-gray-400">
+                  <span>Envío</span>
+                  <span class="text-green-400 font-semibold">Gratis</span>
+                </div>
+                <div class="flex justify-between text-gray-400 text-sm">
+                  <span>Total BV</span>
+                  <span class="text-yellow-400 font-semibold">{{ totalBV }} BV</span>
+                </div>
+                <div class="flex justify-between text-xl font-bold pt-3 border-t border-white/10">
+                  <span class="text-white">Total</span>
+                  <span class="text-primary-400">${{ total.toFixed(2) }}</span>
+                </div>
+              </div>
+
+              <!-- Place Order Button -->
+              <button
+                class="w-full mt-6 bg-gradient-to-r from-primary-500 to-primary-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                @click="handlePlaceOrder"
+                :disabled="!canPlaceOrder || ordersService.loading.value"
+              >
+                {{ ordersService.loading.value ? 'Procesando...' : 'Realizar Pedido' }}
+              </button>
+
+              <div v-if="ordersService.error.value" class="mt-4 p-3 bg-red-500/20 border border-red-500/30 rounded-xl text-red-400 text-sm text-center">
+                {{ ordersService.error.value }}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -289,281 +361,3 @@ async function handlePlaceOrder() {
   }
 }
 </script>
-
-<style scoped>
-.checkout-view {
-  min-height: 100vh;
-  background: #f5f5f5;
-  padding: 2rem;
-}
-
-.checkout-container {
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.checkout-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.back-btn {
-  background: none;
-  border: none;
-  font-size: 1rem;
-  color: #0066cc;
-  cursor: pointer;
-  padding: 0.5rem;
-}
-
-.back-btn:hover {
-  text-decoration: underline;
-}
-
-.checkout-header h1 {
-  margin: 0;
-  color: #333;
-}
-
-.empty-cart {
-  background: white;
-  padding: 3rem;
-  border-radius: 8px;
-  text-align: center;
-}
-
-.empty-cart p {
-  color: #666;
-  margin-bottom: 1.5rem;
-}
-
-.checkout-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.checkout-section {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.checkout-section h2 {
-  margin: 0 0 1.5rem 0;
-  color: #333;
-  font-size: 1.25rem;
-}
-
-.order-items {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.order-item {
-  display: flex;
-  gap: 1rem;
-  padding: 1rem;
-  background: #f9f9f9;
-  border-radius: 4px;
-}
-
-.item-image {
-  width: 60px;
-  height: 60px;
-  flex-shrink: 0;
-  border-radius: 4px;
-  overflow: hidden;
-  background: #f5f5f5;
-}
-
-.item-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.item-info {
-  flex: 1;
-}
-
-.item-info h4 {
-  margin: 0 0 0.25rem 0;
-  font-size: 0.95rem;
-  color: #333;
-}
-
-.item-info p {
-  margin: 0;
-  font-size: 0.85rem;
-  color: #666;
-}
-
-.item-price {
-  font-weight: 700;
-  color: #333;
-}
-
-.order-totals {
-  border-top: 1px solid #ddd;
-  padding-top: 1rem;
-}
-
-.total-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
-  color: #666;
-}
-
-.total-row.bv {
-  font-size: 0.9rem;
-}
-
-.total-row.total {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 2px solid #ddd;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #333;
-}
-
-.address-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group label {
-  margin-bottom: 0.5rem;
-  color: #333;
-  font-weight: 500;
-  font-size: 0.9rem;
-}
-
-.form-group input {
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: #0066cc;
-}
-
-.payment-methods {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.payment-option {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  border: 2px solid #ddd;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: border-color 0.2s;
-}
-
-.payment-option:has(input:checked) {
-  border-color: #0066cc;
-  background: #f0f7ff;
-}
-
-.payment-option.disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.payment-option input[type='radio'] {
-  cursor: pointer;
-}
-
-.payment-info {
-  margin-top: 1rem;
-  padding: 1rem;
-  background: #f9f9f9;
-  border-radius: 4px;
-  font-size: 0.9rem;
-}
-
-.payment-info p {
-  margin: 0.25rem 0;
-}
-
-.payment-info small {
-  display: block;
-  margin-top: 0.75rem;
-  color: #666;
-}
-
-.checkout-actions {
-  text-align: center;
-}
-
-.btn-place-order,
-.btn-primary {
-  width: 100%;
-  max-width: 400px;
-  padding: 1rem 2rem;
-  background: #0066cc;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.btn-place-order:hover:not(:disabled),
-.btn-primary:hover:not(:disabled) {
-  background: #0052a3;
-}
-
-.btn-place-order:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-
-.error-message {
-  text-align: center;
-  padding: 1rem;
-  background: #fee;
-  color: #c00;
-  border-radius: 4px;
-  margin-top: 1rem;
-}
-
-@media (max-width: 768px) {
-  .checkout-view {
-    padding: 1rem;
-  }
-
-  .form-row {
-    grid-template-columns: 1fr;
-  }
-}
-</style>
