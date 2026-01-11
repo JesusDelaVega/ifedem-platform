@@ -1,20 +1,48 @@
 <template>
-  <div class="cart-overlay" @click="$emit('close')">
-    <div class="cart-sidebar" @click.stop>
-      <div class="cart-header">
-        <h2>Carrito de Compras</h2>
-        <button class="close-btn" @click="$emit('close')">×</button>
+  <div class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex justify-end" @click="$emit('close')">
+    <div
+      class="w-full max-w-md bg-gradient-to-br from-gray-900 via-gray-800 to-primary-900 h-full flex flex-col shadow-2xl animate-slide-in"
+      @click.stop
+    >
+      <!-- Header -->
+      <div class="flex items-center justify-between p-6 border-b border-white/10">
+        <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+          <svg class="w-7 h-7 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+          Carrito
+        </h2>
+        <button
+          class="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors"
+          @click="$emit('close')"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
       </div>
 
-      <div v-if="isEmpty" class="cart-empty">
-        <p>Tu carrito está vacío</p>
-        <button class="btn-continue" @click="$emit('close')">
+      <!-- Empty State -->
+      <div v-if="isEmpty" class="flex-1 flex flex-col items-center justify-center p-8 text-center">
+        <div class="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6">
+          <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-2">Tu carrito está vacío</h3>
+        <p class="text-gray-400 mb-8">Agrega productos para comenzar tu compra</p>
+        <button
+          class="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-8 py-3 rounded-xl font-semibold hover:shadow-xl transition-all"
+          @click="$emit('close')"
+        >
           Continuar Comprando
         </button>
       </div>
 
-      <div v-else class="cart-content">
-        <div class="cart-items">
+      <!-- Cart Content -->
+      <div v-else class="flex-1 flex flex-col overflow-hidden">
+        <!-- Cart Items -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-3">
           <CartItem
             v-for="item in cartItems"
             :key="item.product.id"
@@ -24,37 +52,51 @@
           />
         </div>
 
-        <div class="cart-summary">
-          <div class="summary-row">
+        <!-- Cart Summary -->
+        <div class="border-t border-white/10 bg-black/20 backdrop-blur-sm p-6 space-y-4">
+          <!-- Subtotal -->
+          <div class="flex justify-between text-gray-400">
             <span>Subtotal</span>
-            <span class="value">${{ subtotal.toFixed(2) }}</span>
+            <span class="text-white font-semibold">${{ subtotal.toFixed(2) }}</span>
           </div>
 
-          <div class="summary-row bv">
-            <span>Total BV</span>
-            <span class="value">{{ totalBV }} BV</span>
+          <!-- BV -->
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-400">Total BV</span>
+            <span class="text-yellow-400 font-semibold">{{ totalBV }} BV</span>
           </div>
 
-          <div v-if="totalCV > 0" class="summary-row cv">
-            <span>Total CV</span>
-            <span class="value">{{ totalCV }} CV</span>
+          <!-- CV -->
+          <div v-if="totalCV > 0" class="flex justify-between text-sm">
+            <span class="text-gray-400">Total CV</span>
+            <span class="text-blue-400 font-semibold">{{ totalCV }} CV</span>
           </div>
 
-          <div v-if="totalPoints > 0" class="summary-row points">
-            <span>Puntos</span>
-            <span class="value">{{ totalPoints }} pts</span>
+          <!-- Points -->
+          <div v-if="totalPoints > 0" class="flex justify-between text-sm">
+            <span class="text-gray-400">Puntos</span>
+            <span class="text-purple-400 font-semibold">{{ totalPoints }} pts</span>
           </div>
 
-          <div class="summary-row total">
-            <span>Total</span>
-            <span class="value">${{ subtotal.toFixed(2) }}</span>
+          <!-- Total -->
+          <div class="flex justify-between pt-4 border-t border-white/10">
+            <span class="text-xl font-bold text-white">Total</span>
+            <span class="text-xl font-bold text-primary-400">${{ subtotal.toFixed(2) }}</span>
           </div>
 
-          <button class="btn-checkout" @click="handleCheckout">
+          <!-- Checkout Button -->
+          <button
+            class="w-full bg-gradient-to-r from-primary-500 to-primary-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:shadow-2xl transition-all"
+            @click="handleCheckout"
+          >
             Proceder al Pago
           </button>
 
-          <button class="btn-continue-shopping" @click="$emit('close')">
+          <!-- Continue Shopping -->
+          <button
+            class="w-full bg-white/5 backdrop-blur-sm border border-white/20 text-white px-6 py-3 rounded-xl font-semibold hover:bg-white/10 transition-all"
+            @click="$emit('close')"
+          >
             Continuar Comprando
           </button>
         </div>
@@ -91,29 +133,7 @@ function handleCheckout() {
 </script>
 
 <style scoped>
-.cart-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.cart-sidebar {
-  width: 100%;
-  max-width: 450px;
-  background: white;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
+@keyframes slide-in {
   from {
     transform: translateX(100%);
   }
@@ -122,133 +142,7 @@ function handleCheckout() {
   }
 }
 
-.cart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid #ddd;
-}
-
-.cart-header h2 {
-  margin: 0;
-  font-size: 1.5rem;
-  color: #333;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 2rem;
-  color: #666;
-  cursor: pointer;
-  line-height: 1;
-  padding: 0;
-  width: 32px;
-  height: 32px;
-}
-
-.close-btn:hover {
-  color: #333;
-}
-
-.cart-empty {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  text-align: center;
-}
-
-.cart-empty p {
-  color: #666;
-  margin-bottom: 1.5rem;
-}
-
-.cart-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.cart-items {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1rem;
-}
-
-.cart-summary {
-  border-top: 1px solid #ddd;
-  padding: 1.5rem;
-  background: #f9f9f9;
-}
-
-.summary-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
-  color: #666;
-}
-
-.summary-row.bv,
-.summary-row.cv,
-.summary-row.points {
-  font-size: 0.9rem;
-}
-
-.summary-row.total {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 2px solid #ddd;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #333;
-}
-
-.value {
-  font-weight: 600;
-}
-
-.btn-checkout,
-.btn-continue-shopping,
-.btn-continue {
-  width: 100%;
-  padding: 1rem;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.btn-checkout {
-  background: #0066cc;
-  color: white;
-  margin-bottom: 0.75rem;
-}
-
-.btn-checkout:hover {
-  background: #0052a3;
-}
-
-.btn-continue-shopping,
-.btn-continue {
-  background: #f0f0f0;
-  color: #333;
-}
-
-.btn-continue-shopping:hover,
-.btn-continue:hover {
-  background: #e0e0e0;
-}
-
-@media (max-width: 768px) {
-  .cart-sidebar {
-    max-width: 100%;
-  }
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
 }
 </style>
