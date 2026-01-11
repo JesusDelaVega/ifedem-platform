@@ -1,15 +1,17 @@
 <template>
-  <div class="register-form">
-    <div class="form-header">
-      <PlatformLogo size="large" class="logo" />
-      <h2>Crear Cuenta</h2>
-      <p>Únete a {{ platformName }}</p>
+  <div class="w-full max-w-lg mx-auto">
+    <div class="text-center mb-8">
+      <h2 class="text-3xl font-bold text-white mb-2">Crear Cuenta</h2>
+      <p class="text-gray-400">Únete a {{ platformName }}</p>
     </div>
 
-    <form @submit.prevent="handleRegister">
-      <div class="form-row">
-        <div class="form-group">
-          <label for="firstName">Nombre</label>
+    <form @submit.prevent="handleRegister" class="space-y-6">
+      <!-- Name Row -->
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label for="firstName" class="block text-white font-semibold mb-2 text-sm uppercase tracking-wider">
+            Nombre
+          </label>
           <input
             id="firstName"
             v-model="form.firstName"
@@ -17,11 +19,14 @@
             placeholder="Juan"
             required
             :disabled="loading"
+            class="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           />
         </div>
 
-        <div class="form-group">
-          <label for="lastName">Apellido</label>
+        <div>
+          <label for="lastName" class="block text-white font-semibold mb-2 text-sm uppercase tracking-wider">
+            Apellido
+          </label>
           <input
             id="lastName"
             v-model="form.lastName"
@@ -29,12 +34,16 @@
             placeholder="Pérez"
             required
             :disabled="loading"
+            class="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           />
         </div>
       </div>
 
-      <div class="form-group">
-        <label for="email">Email</label>
+      <!-- Email -->
+      <div>
+        <label for="email" class="block text-white font-semibold mb-2 text-sm uppercase tracking-wider">
+          Email
+        </label>
         <input
           id="email"
           v-model="form.email"
@@ -42,22 +51,30 @@
           placeholder="tu@email.com"
           required
           :disabled="loading"
+          class="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         />
       </div>
 
-      <div class="form-group">
-        <label for="phone">Teléfono (opcional)</label>
+      <!-- Phone -->
+      <div>
+        <label for="phone" class="block text-white font-semibold mb-2 text-sm uppercase tracking-wider">
+          Teléfono <span class="text-gray-400 text-xs normal-case">(opcional)</span>
+        </label>
         <input
           id="phone"
           v-model="form.phone"
           type="tel"
           placeholder="+52 123 456 7890"
           :disabled="loading"
+          class="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         />
       </div>
 
-      <div class="form-group">
-        <label for="password">Contraseña</label>
+      <!-- Password -->
+      <div>
+        <label for="password" class="block text-white font-semibold mb-2 text-sm uppercase tracking-wider">
+          Contraseña
+        </label>
         <input
           id="password"
           v-model="form.password"
@@ -66,12 +83,16 @@
           required
           minlength="6"
           :disabled="loading"
+          class="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         />
-        <small>Mínimo 6 caracteres</small>
+        <p class="text-gray-400 text-xs mt-1">Mínimo 6 caracteres</p>
       </div>
 
-      <div class="form-group">
-        <label for="confirmPassword">Confirmar Contraseña</label>
+      <!-- Confirm Password -->
+      <div>
+        <label for="confirmPassword" class="block text-white font-semibold mb-2 text-sm uppercase tracking-wider">
+          Confirmar Contraseña
+        </label>
         <input
           id="confirmPassword"
           v-model="form.confirmPassword"
@@ -79,34 +100,54 @@
           placeholder="••••••••"
           required
           :disabled="loading"
+          class="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         />
       </div>
 
-      <div class="form-group">
-        <label for="referralCode">Código de Referido (opcional)</label>
+      <!-- Referral Code -->
+      <div>
+        <label for="referralCode" class="block text-white font-semibold mb-2 text-sm uppercase tracking-wider">
+          Código de Referido <span class="text-gray-400 text-xs normal-case">(opcional)</span>
+        </label>
         <input
           id="referralCode"
           v-model="form.referralCode"
           type="text"
           placeholder="ABC1234"
           :disabled="loading"
+          class="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         />
-        <small>Si alguien te invitó, ingresa su código aquí</small>
+        <p class="text-gray-400 text-xs mt-1">Si alguien te invitó, ingresa su código aquí</p>
       </div>
 
-      <div v-if="error" class="error-message">
+      <!-- Error Message -->
+      <div v-if="error" class="bg-red-500/20 border border-red-500/30 rounded-xl p-4 text-red-400 text-sm">
         {{ error }}
       </div>
 
-      <button type="submit" class="btn-primary" :disabled="loading || !isValid">
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        :disabled="loading || !isValid"
+        class="w-full bg-gradient-to-r from-primary-500 to-primary-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+      >
+        <svg v-if="loading" class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
         {{ loading ? 'Creando cuenta...' : 'Crear Cuenta' }}
       </button>
     </form>
 
-    <div class="form-footer">
-      <p>
+    <!-- Login Link -->
+    <div class="mt-8 text-center">
+      <p class="text-gray-400">
         ¿Ya tienes cuenta?
-        <button type="button" class="link-button" @click="$emit('show-login')">
+        <button
+          type="button"
+          class="text-primary-400 hover:text-primary-300 font-semibold transition-colors ml-1"
+          @click="$emit('show-login')"
+        >
           Inicia sesión aquí
         </button>
       </p>
@@ -118,7 +159,6 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/shared/composables/useAuth'
-import PlatformLogo from '@/components/shared/PlatformLogo.vue'
 
 const emit = defineEmits<{
   'show-login': []
@@ -171,145 +211,13 @@ async function handleRegister() {
       referralCode: form.value.referralCode || undefined
     })
 
-    // Check if user joined a new platform
     if ((result as any).isNewPlatform) {
       alert(`¡Bienvenido a ${platformName.value}! Has sido agregado exitosamente.`)
     }
 
-    // Redirect to dashboard after successful registration
     router.push('/dashboard')
   } catch (err) {
-    // Error is handled by useAuth
     console.error('Registration error:', err)
   }
 }
 </script>
-
-<style scoped>
-.register-form {
-  max-width: 500px;
-  margin: 0 auto;
-  padding: 2rem;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.form-header {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.form-header .logo {
-  margin-bottom: 1.5rem;
-}
-
-.form-header h2 {
-  margin: 0 0 0.5rem 0;
-  color: #333;
-}
-
-.form-header p {
-  margin: 0;
-  color: #666;
-  font-size: 0.9rem;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #333;
-  font-weight: 500;
-}
-
-.form-group input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-  transition: border-color 0.2s;
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: #0066cc;
-}
-
-.form-group input:disabled {
-  background: #f5f5f5;
-  cursor: not-allowed;
-}
-
-.form-group small {
-  display: block;
-  margin-top: 0.25rem;
-  color: #666;
-  font-size: 0.85rem;
-}
-
-.error-message {
-  padding: 0.75rem;
-  background: #fee;
-  color: #c00;
-  border-radius: 4px;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
-}
-
-.btn-primary {
-  width: 100%;
-  padding: 0.75rem;
-  background: #0066cc;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: #0052a3;
-}
-
-.btn-primary:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-
-.form-footer {
-  margin-top: 1.5rem;
-  text-align: center;
-  color: #666;
-  font-size: 0.9rem;
-}
-
-.form-footer p {
-  margin: 0;
-}
-
-.link-button {
-  background: none;
-  border: none;
-  color: #0066cc;
-  cursor: pointer;
-  font-size: 0.9rem;
-  text-decoration: underline;
-}
-
-.link-button:hover {
-  color: #0052a3;
-}
-</style>
