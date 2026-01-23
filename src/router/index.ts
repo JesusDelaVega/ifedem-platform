@@ -28,6 +28,12 @@ const router = createRouter({
     {
       path: '/dashboard',
       name: 'dashboard',
+      component: () => import('../views/AffiliateDashboard.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/dashboard-old',
+      name: 'dashboard-old',
       component: () => import('../views/DashboardView.vue'),
       meta: { requiresAuth: true },
     },
