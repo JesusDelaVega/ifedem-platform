@@ -114,7 +114,27 @@ export const useUserStore = defineStore('user', () => {
   function initAuthListener() {
     onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        await fetchUserData(firebaseUser.uid)
+        // Try to fetch full user data from Firestore
+        try {
+          await fetchUserData(firebaseUser.uid)
+        } catch (err) {
+          console.warn('Could not fetch user data from Firestore, using Firebase Auth data only')
+          // If Firestore fails (permissions), create basic user from Firebase Auth
+          const nameParts = (firebaseUser.displayName || '').split(' ')
+          user.value = {
+            id: firebaseUser.uid,
+            email: firebaseUser.email!,
+            firstName: nameParts[0] || 'User',
+            lastName: nameParts.slice(1).join(' ') || '',
+            role: 'affiliate' as UserRole,
+            status: 'active',
+            platforms: [currentPlatform.value],
+            primaryPlatform: currentPlatform.value,
+            isVerified: firebaseUser.emailVerified,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          }
+        }
       } else {
         clearUser()
       }
