@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { getAuth } from 'firebase/auth'
+import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/config/firebase'
 import HomeView from '../views/HomeView.vue'
@@ -89,41 +89,66 @@ const router = createRouter({
   ],
 })
 
+// Helper function to get current user, waiting for auth to initialize if needed
+function getCurrentUser(auth: any): Promise<any> {
+  return new Promise((resolve, reject) => {
+    if (auth.currentUser) {
+      resolve(auth.currentUser)
+    } else {
+      const unsubscribe = onAuthStateChanged(
+        auth,
+        (user) => {
+          unsubscribe()
+          resolve(user)
+        },
+        reject
+      )
+    }
+  })
+}
+
 // Navigation Guard
 router.beforeEach(async (to, from, next) => {
   const auth = getAuth()
-  const currentUser = auth.currentUser
 
   // Check if route requires authentication
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    if (!currentUser) {
-      // Not logged in, redirect to auth
-      next('/auth')
-      return
-    }
+    try {
+      // Wait for auth to initialize
+      const currentUser = await getCurrentUser(auth)
 
-    // Check if route requires admin
-    if (to.matched.some(record => record.meta.requiresAdmin)) {
-      try {
-        const userDoc = await getDoc(doc(db, 'users', currentUser.uid))
-        if (userDoc.exists()) {
-          const userData = userDoc.data()
-          if (userData.role === 'admin') {
-            next()
-          } else {
-            // Not admin, redirect to dashboard
-            alert('No tienes permisos para acceder al panel de administración')
-            next('/dashboard')
-          }
-        } else {
-          next('/auth')
-        }
-      } catch (err) {
-        console.error('Error checking admin status:', err)
-        next('/dashboard')
+      if (!currentUser) {
+        // Not logged in, redirect to auth
+        next('/auth')
+        return
       }
-    } else {
-      next()
+
+      // Check if route requires admin
+      if (to.matched.some(record => record.meta.requiresAdmin)) {
+        try {
+          const userDoc = await getDoc(doc(db, 'users', currentUser.uid))
+          if (userDoc.exists()) {
+            const userData = userDoc.data()
+            if (userData.role === 'admin') {
+              next()
+            } else {
+              // Not admin, redirect to dashboard
+              alert('No tienes permisos para acceder al panel de administración')
+              next('/dashboard')
+            }
+          } else {
+            next('/auth')
+          }
+        } catch (err) {
+          console.error('Error checking admin status:', err)
+          next('/dashboard')
+        }
+      } else {
+        next()
+      }
+    } catch (err) {
+      console.error('Error in auth guard:', err)
+      next('/auth')
     }
   } else {
     next()
