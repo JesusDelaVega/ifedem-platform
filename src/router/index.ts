@@ -92,12 +92,16 @@ const router = createRouter({
 // Helper function to get current user, waiting for auth to initialize if needed
 function getCurrentUser(auth: any): Promise<any> {
   return new Promise((resolve, reject) => {
+    console.log('🔍 getCurrentUser: checking auth.currentUser...', auth.currentUser)
     if (auth.currentUser) {
+      console.log('✅ getCurrentUser: currentUser already available:', auth.currentUser.uid)
       resolve(auth.currentUser)
     } else {
+      console.log('⏳ getCurrentUser: waiting for auth state change...')
       const unsubscribe = onAuthStateChanged(
         auth,
         (user) => {
+          console.log('🔔 getCurrentUser: auth state changed, user:', user?.uid || 'null')
           unsubscribe()
           resolve(user)
         },
@@ -109,19 +113,23 @@ function getCurrentUser(auth: any): Promise<any> {
 
 // Navigation Guard
 router.beforeEach(async (to, from, next) => {
+  console.log(`🛣️  Navigation: ${from.path} → ${to.path}`)
   const auth = getAuth()
 
   // Check if route requires authentication
   if (to.matched.some(record => record.meta.requiresAuth)) {
+    console.log('🔒 Route requires auth, checking user...')
     try {
       // Wait for auth to initialize
       const currentUser = await getCurrentUser(auth)
 
       if (!currentUser) {
         // Not logged in, redirect to auth
+        console.log('❌ No user found, redirecting to /auth')
         next('/auth')
         return
       }
+      console.log('✅ User authenticated:', currentUser.uid)
 
       // Check if route requires admin
       if (to.matched.some(record => record.meta.requiresAdmin)) {

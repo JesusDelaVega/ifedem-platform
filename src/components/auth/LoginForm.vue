@@ -109,10 +109,13 @@ const platformName = computed(() => {
 
 async function handleLogin() {
   try {
+    console.log('🚀 Starting login process...')
     await login(form.value.email, form.value.password)
-    router.push('/dashboard')
+    console.log('✅ Login completed, redirecting to dashboard...')
+    await router.push('/dashboard')
+    console.log('✅ Navigation to dashboard completed')
   } catch (err) {
-    console.error('Login error:', err)
+    console.error('❌ Login error:', err)
   }
 }
 </script>

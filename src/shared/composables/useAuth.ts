@@ -131,22 +131,31 @@ export function useAuth() {
     error.value = null
 
     try {
+      console.log('🔐 Attempting login with:', email)
       const userCredential = await signInWithEmailAndPassword(auth, email, password)
+      console.log('✅ Login successful, user:', userCredential.user.uid)
       currentUser.value = userCredential.user
 
-      // Update last login
-      await setDoc(
+      // Update last login (non-blocking - don't fail login if this fails)
+      console.log('📝 Updating last login...')
+      setDoc(
         doc(db, 'users', userCredential.user.uid),
         { lastLogin: new Date() },
         { merge: true }
-      )
+      ).then(() => {
+        console.log('✅ Last login updated')
+      }).catch((err) => {
+        console.warn('⚠️ Could not update last login (permissions issue):', err.message)
+      })
 
       return userCredential.user
     } catch (err: any) {
+      console.error('❌ Login error:', err)
       error.value = getErrorMessage(err)
       throw err
     } finally {
       loading.value = false
+      console.log('🏁 Login process finished, loading:', loading.value)
     }
   }
 

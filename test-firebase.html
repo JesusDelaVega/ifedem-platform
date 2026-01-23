@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Firebase Auth Test</title>
+</head>
+<body>
+    <h1>Firebase Auth Test</h1>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="testLogin()">Test Login</button>
+    <div id="result"></div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBWe4w9CJEo6_5u6C8Qlx-7eyTJdNYVSZM",
+            authDomain: "ace-ife.firebaseapp.com",
+            projectId: "ace-ife",
+            storageBucket: "ace-ife.firebasestorage.app",
+            messagingSenderId: "450822434954",
+            appId: "1:450822434954:web:3823ad91782ccaf0a53d73",
+            measurementId: "G-573QEM755L"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        window.testLogin = async function() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const result = document.getElementById('result');
+
+            result.innerHTML = 'Testing login...';
+            console.log('Starting login test...');
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                console.log('Login successful:', userCredential);
+                result.innerHTML = `✅ Login successful! User: ${userCredential.user.email}`;
+            } catch (error) {
+                console.error('Login error:', error);
+                result.innerHTML = `❌ Error: ${error.code} - ${error.message}`;
+            }
+        }
+
+        console.log('Firebase initialized:', app);
+        console.log('Auth:', auth);
+    </script>
+</body>
+</html>
