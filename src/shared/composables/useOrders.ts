@@ -14,6 +14,7 @@ import {
 import { db } from '@/config/firebase'
 import type { Order, OrderItem, Address, OrderStatus } from '@/shared/types/product'
 import type { CartItem } from './useCart'
+import { CommissionCalculator } from '@/shared/services/commissionCalculator'
 
 export function useOrders() {
   const loading = ref(false)
@@ -90,16 +91,35 @@ export function useOrders() {
 
       // Save to Firestore
       const orderRef = doc(collection(db, 'orders'))
+      const orderId = orderRef.id
+
+      // Add platform to order data
+      const userDoc = await getDoc(doc(db, 'users', userId))
+      const platform = userDoc.exists() ? (userDoc.data().primaryPlatform || 'ifedem') : 'ifedem'
+
       await setDoc(orderRef, {
         ...orderData,
+        platform, // Add platform field
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       })
 
+      // Process commissions asynchronously (non-blocking)
+      console.log('💰 Processing commissions for order:', orderId)
+      CommissionCalculator.processOrderCommissions(orderId)
+        .then((commissions) => {
+          console.log(`✅ ${commissions.length} commissions generated for order ${orderNumber}`)
+        })
+        .catch((err) => {
+          console.error('❌ Error processing commissions:', err)
+          // Don't fail the order creation if commissions fail
+        })
+
       // Return created order
       return {
         ...orderData,
-        id: orderRef.id
+        id: orderId,
+        platform
       }
     } catch (err: any) {
       error.value = err.message
