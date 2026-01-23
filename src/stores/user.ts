@@ -115,11 +115,11 @@ export const useUserStore = defineStore('user', () => {
     onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         // Try to fetch full user data from Firestore
-        try {
-          await fetchUserData(firebaseUser.uid)
-        } catch (err) {
+        await fetchUserData(firebaseUser.uid)
+
+        // If fetchUserData failed (user is still null), create basic user from Firebase Auth
+        if (!user.value) {
           console.warn('Could not fetch user data from Firestore, using Firebase Auth data only')
-          // If Firestore fails (permissions), create basic user from Firebase Auth
           const nameParts = (firebaseUser.displayName || '').split(' ')
           user.value = {
             id: firebaseUser.uid,
