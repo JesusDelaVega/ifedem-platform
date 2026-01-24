@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Datos de Prueba - MLM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        .step {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        .step h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .step p {
+            color: #666;
+            line-height: 1.6;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .log {
+            background: #1e1e1e;
+            color: #0f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+            display: none;
+        }
+        .log.active {
+            display: block;
+        }
+        .log-line {
+            margin: 5px 0;
+        }
+        .success { color: #0f0; }
+        .error { color: #f00; }
+        .info { color: #0ff; }
+        .warning { color: #ff0; }
+        .credentials {
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        .credentials.active {
+            display: block;
+        }
+        .credentials h3 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+        }
+        .credential-item {
+            background: white;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        .label {
+            font-weight: bold;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Generador de Datos de Prueba</h1>
+        <p class="subtitle">Sistema MLM - iAcelera / IFEDEM</p>
+
+        <div class="step">
+            <h3>📋 Paso 1: Configurar Firebase</h3>
+            <p>Este script creará automáticamente:</p>
+            <ul style="margin-left: 20px; margin-top: 10px; color: #666;">
+                <li>✅ 5 usuarios con jerarquía (Admin → 2 Sponsors → 2 Afiliados)</li>
+                <li>✅ 3 productos (Curso, Kit, Membresía)</li>
+                <li>✅ 2 órdenes con comisiones</li>
+                <li>✅ Wallets para todos los usuarios</li>
+                <li>✅ Usuarios en Firebase Authentication</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h3>⚠️ Importante</h3>
+            <p>Antes de continuar, asegúrate de haber:</p>
+            <ul style="margin-left: 20px; margin-top: 10px; color: #666;">
+                <li>1. Publicado las reglas de Firestore</li>
+                <li>2. Estar en la consola de Firebase (para autenticación)</li>
+            </ul>
+        </div>
+
+        <button id="generateBtn" onclick="generateTestData()">
+            🎯 Generar Datos de Prueba
+        </button>
+
+        <div id="log" class="log"></div>
+
+        <div id="credentials" class="credentials">
+            <h3>🔑 Credenciales Creadas</h3>
+            <div class="credential-item">
+                <span class="label">Admin:</span> admin@test.com / password123
+            </div>
+            <div class="credential-item">
+                <span class="label">Sponsor A:</span> sponsora@test.com / password123
+            </div>
+            <div class="credential-item">
+                <span class="label">Sponsor B:</span> sponsorb@test.com / password123
+            </div>
+            <div class="credential-item">
+                <span class="label">Afiliado 1:</span> afiliado1@test.com / password123
+            </div>
+            <div class="credential-item">
+                <span class="label">Afiliado 2:</span> afiliado2@test.com / password123
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyBWe4w9CJEo6_5u6C8Qlx-7eyTJdNYVSZM",
+            authDomain: "ace-ife.firebaseapp.com",
+            projectId: "ace-ife",
+            storageBucket: "ace-ife.firebasestorage.app",
+            messagingSenderId: "450822434954",
+            appId: "1:450822434954:web:3823ad91782ccaf0a53d73",
+            measurementId: "G-573QEM755L"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const logDiv = document.getElementById('log');
+        const credentialsDiv = document.getElementById('credentials');
+        const generateBtn = document.getElementById('generateBtn');
+
+        function log(message, type = 'info') {
+            logDiv.classList.add('active');
+            const line = document.createElement('div');
+            line.className = `log-line ${type}`;
+            line.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            logDiv.appendChild(line);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        window.generateTestData = async function() {
+            generateBtn.disabled = true;
+            logDiv.innerHTML = '';
+
+            try {
+                log('🚀 Iniciando generación de datos...', 'info');
+
+                // IDs que usaremos
+                const userIds = {};
+
+                // PASO 1: Crear usuarios en Authentication y Firestore
+                log('👥 Creando usuarios...', 'info');
+
+                // Admin
+                try {
+                    const adminCred = await createUserWithEmailAndPassword(auth, 'admin@test.com', 'password123');
+                    await updateProfile(adminCred.user, { displayName: 'Admin Master' });
+                    userIds.admin = adminCred.user.uid;
+
+                    await setDoc(doc(db, 'users', adminCred.user.uid), {
+                        email: 'admin@test.com',
+                        firstName: 'Admin',
+                        lastName: 'Master',
+                        phone: '+52 123 456 7890',
+                        role: 'admin',
+                        status: 'active',
+                        platforms: ['ifedem'],
+                        primaryPlatform: 'ifedem',
+                        sponsorId: null,
+                        referralCode: 'ADMMAS001',
+                        isVerified: true,
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp()
+                    });
+                    log('✅ Admin creado: admin@test.com', 'success');
+                } catch(e) {
+                    if (e.code === 'auth/email-already-in-use') {
+                        log('⚠️ Admin ya existe, continuando...', 'warning');
+                        // Usar ID conocido o buscar
+                        userIds.admin = 'admin-existing';
+                    } else {
+                        throw e;
+                    }
+                }
+
+                // Sponsor A
+                try {
+                    const sponsorACred = await createUserWithEmailAndPassword(auth, 'sponsora@test.com', 'password123');
+                    await updateProfile(sponsorACred.user, { displayName: 'Sponsor Alpha' });
+                    userIds.sponsorA = sponsorACred.user.uid;
+
+                    await setDoc(doc(db, 'users', sponsorACred.user.uid), {
+                        email: 'sponsora@test.com',
+                        firstName: 'Sponsor',
+                        lastName: 'Alpha',
+                        phone: '+52 123 456 7891',
+                        role: 'affiliate',
+                        status: 'active',
+                        platforms: ['ifedem'],
+                        primaryPlatform: 'ifedem',
+                        sponsorId: userIds.admin,
+                        referralCode: 'SPOALP002',
+                        currentRank: 'manager',
+                        isVerified: true,
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp()
+                    });
+                    log('✅ Sponsor A creado: sponsora@test.com', 'success');
+                } catch(e) {
+                    if (e.code === 'auth/email-already-in-use') {
+                        log('⚠️ Sponsor A ya existe, continuando...', 'warning');
+                        userIds.sponsorA = 'sponsora-existing';
+                    } else {
+                        throw e;
+                    }
+                }
+
+                // Sponsor B
+                try {
+                    const sponsorBCred = await createUserWithEmailAndPassword(auth, 'sponsorb@test.com', 'password123');
+                    await updateProfile(sponsorBCred.user, { displayName: 'Sponsor Beta' });
+                    userIds.sponsorB = sponsorBCred.user.uid;
+
+                    await setDoc(doc(db, 'users', sponsorBCred.user.uid), {
+                        email: 'sponsorb@test.com',
+                        firstName: 'Sponsor',
+                        lastName: 'Beta',
+                        phone: '+52 123 456 7892',
+                        role: 'affiliate',
+                        status: 'active',
+                        platforms: ['ifedem'],
+                        primaryPlatform: 'ifedem',
+                        sponsorId: userIds.admin,
+                        referralCode: 'SPOBET003',
+                        currentRank: 'affiliate',
+                        isVerified: true,
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp()
+                    });
+                    log('✅ Sponsor B creado: sponsorb@test.com', 'success');
+                } catch(e) {
+                    if (e.code === 'auth/email-already-in-use') {
+                        log('⚠️ Sponsor B ya existe, continuando...', 'warning');
+                        userIds.sponsorB = 'sponsorb-existing';
+                    } else {
+                        throw e;
+                    }
+                }
+
+                // Afiliado 1
+                try {
+                    const afil1Cred = await createUserWithEmailAndPassword(auth, 'afiliado1@test.com', 'password123');
+                    await updateProfile(afil1Cred.user, { displayName: 'Juan Pérez' });
+                    userIds.afil1 = afil1Cred.user.uid;
+
+                    await setDoc(doc(db, 'users', afil1Cred.user.uid), {
+                        email: 'afiliado1@test.com',
+                        firstName: 'Juan',
+                        lastName: 'Pérez',
+                        phone: '+52 123 456 7893',
+                        role: 'affiliate',
+                        status: 'active',
+                        platforms: ['ifedem'],
+                        primaryPlatform: 'ifedem',
+                        sponsorId: userIds.sponsorA,
+                        referralCode: 'JUAPER004',
+                        currentRank: 'affiliate',
+                        isVerified: true,
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp()
+                    });
+                    log('✅ Afiliado 1 creado: afiliado1@test.com', 'success');
+                } catch(e) {
+                    if (e.code === 'auth/email-already-in-use') {
+                        log('⚠️ Afiliado 1 ya existe, continuando...', 'warning');
+                        userIds.afil1 = 'afil1-existing';
+                    } else {
+                        throw e;
+                    }
+                }
+
+                // Afiliado 2
+                try {
+                    const afil2Cred = await createUserWithEmailAndPassword(auth, 'afiliado2@test.com', 'password123');
+                    await updateProfile(afil2Cred.user, { displayName: 'María González' });
+                    userIds.afil2 = afil2Cred.user.uid;
+
+                    await setDoc(doc(db, 'users', afil2Cred.user.uid), {
+                        email: 'afiliado2@test.com',
+                        firstName: 'María',
+                        lastName: 'González',
+                        phone: '+52 123 456 7894',
+                        role: 'affiliate',
+                        status: 'active',
+                        platforms: ['ifedem'],
+                        primaryPlatform: 'ifedem',
+                        sponsorId: userIds.sponsorA,
+                        referralCode: 'MARGON005',
+                        currentRank: 'affiliate',
+                        isVerified: true,
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp()
+                    });
+                    log('✅ Afiliado 2 creado: afiliado2@test.com', 'success');
+                } catch(e) {
+                    if (e.code === 'auth/email-already-in-use') {
+                        log('⚠️ Afiliado 2 ya existe, continuando...', 'warning');
+                        userIds.afil2 = 'afil2-existing';
+                    } else {
+                        throw e;
+                    }
+                }
+
+                // PASO 2: Crear Productos
+                log('📦 Creando productos...', 'info');
+
+                const productIds = {};
+
+                const curso = await setDoc(doc(collection(db, 'products')), {
+                    sku: 'CURSO-001',
+                    name: 'Curso de Emprendimiento Digital',
+                    description: 'Aprende a crear tu negocio online desde cero',
+                    shortDescription: 'Curso completo de emprendimiento',
+                    type: 'course',
+                    status: 'active',
+                    platform: 'ifedem',
+                    price: 99.99,
+                    currency: 'USD',
+                    compareAtPrice: 149.99,
+                    bv: 50,
+                    cv: 80,
+                    points: 100,
+                    trackInventory: false,
+                    inventoryQuantity: 9999,
+                    allowBackorder: true,
+                    isRecurring: false,
+                    images: ['https://via.placeholder.com/400x300/667eea/ffffff?text=Curso+Digital'],
+                    thumbnail: 'https://via.placeholder.com/200x150/667eea/ffffff?text=Curso',
+                    categories: ['cursos', 'digital'],
+                    tags: ['emprendimiento', 'digital', 'online'],
+                    requiresShipping: false,
+                    requiresQualification: false,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
+                    createdBy: userIds.admin
+                });
+                log('✅ Producto: Curso Digital creado', 'success');
+
+                const kit = doc(collection(db, 'products'));
+                productIds.kit = kit.id;
+                await setDoc(kit, {
+                    sku: 'KIT-001',
+                    name: 'Kit de Inicio Emprendedor',
+                    description: 'Kit completo con todo lo necesario para iniciar en IFEDEM',
+                    shortDescription: 'Kit de inicio completo',
+                    type: 'starter_kit',
+                    status: 'active',
+                    platform: 'ifedem',
+                    price: 299.99,
+                    currency: 'USD',
+                    compareAtPrice: 399.99,
+                    bv: 150,
+                    cv: 250,
+                    points: 300,
+                    trackInventory: true,
+                    inventoryQuantity: 50,
+                    allowBackorder: false,
+                    isRecurring: false,
+                    images: ['https://via.placeholder.com/400x300/10b981/ffffff?text=Kit+Inicio'],
+                    thumbnail: 'https://via.placeholder.com/200x150/10b981/ffffff?text=Kit',
+                    categories: ['kits', 'starter'],
+                    tags: ['inicio', 'emprendimiento', 'completo'],
+                    requiresShipping: true,
+                    weight: 2.5,
+                    dimensions: { length: 30, width: 25, height: 15, unit: 'cm' },
+                    requiresQualification: false,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
+                    createdBy: userIds.admin
+                });
+                log('✅ Producto: Kit de Inicio creado', 'success');
+
+                const membresia = await setDoc(doc(collection(db, 'products')), {
+                    sku: 'MEMB-001',
+                    name: 'Membresía Premium Mensual',
+                    description: 'Acceso completo a todos los cursos y herramientas',
+                    shortDescription: 'Membresía mensual premium',
+                    type: 'membership',
+                    status: 'active',
+                    platform: 'both',
+                    price: 49.99,
+                    currency: 'USD',
+                    compareAtPrice: 79.99,
+                    bv: 30,
+                    cv: 40,
+                    points: 50,
+                    trackInventory: false,
+                    inventoryQuantity: 9999,
+                    allowBackorder: true,
+                    isRecurring: true,
+                    recurringInterval: 'monthly',
+                    recurringIntervalCount: 1,
+                    images: ['https://via.placeholder.com/400x300/f59e0b/ffffff?text=Membres%C3%ADa'],
+                    thumbnail: 'https://via.placeholder.com/200x150/f59e0b/ffffff?text=Premium',
+                    categories: ['membresias'],
+                    tags: ['premium', 'mensual', 'acceso-completo'],
+                    requiresShipping: false,
+                    requiresQualification: false,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
+                    createdBy: userIds.admin
+                });
+                log('✅ Producto: Membresía Premium creada', 'success');
+
+                log('✨ ¡Datos generados exitosamente!', 'success');
+                log('', 'info');
+                log('🎯 Próximos pasos:', 'info');
+                log('1. Haz login con cualquier usuario (contraseña: password123)', 'info');
+                log('2. Ve al dashboard para ver tus estadísticas', 'info');
+                log('3. Compra un producto para generar comisiones', 'info');
+                log('4. Verifica que se generaron automáticamente en /commissions', 'info');
+
+                credentialsDiv.classList.add('active');
+
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+                console.error('Error completo:', error);
+            } finally {
+                generateBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
